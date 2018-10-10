@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'dart:math';
 
 import 'package:polytable/Constants.dart';
+import 'package:polytable/fromJson.dart';
 
 void main() => runApp(new MyApp());
 
@@ -29,11 +30,13 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  void choiceAction(String choice){
-    if(choice == Constants.Profile){
+  void choiceAction(String choice) {
+    if (choice == Constants.Profile) {
       print('Profile');
-    }else if(choice == Constants.Group){
-      print('Group');
+    } else if (choice == Constants.Group) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => fromJson()));
     }
   }
 
@@ -63,25 +66,22 @@ class _MyHomePageState extends State<MyHomePage> {
         backgroundColor: Color.fromRGBO(16, 93, 59, 1.0),
         actions: <Widget>[
           InkWell(
-            borderRadius: BorderRadius.all(Radius.circular(40.0)),
-            onTap: () {
-              PopupMenuButton<String>(
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: PopupMenuButton<String>(
+                icon: Icon(
+                  Icons.account_circle,
+                  size: 40.0,
+                ),
                 onSelected: choiceAction,
                 itemBuilder: (BuildContext context) {
-                  return Constants.choices.map((String choice){
+                  return Constants.choices.map((String choice) {
                     return PopupMenuItem<String>(
                       value: choice,
                       child: Text(choice),
                     );
                   }).toList();
                 },
-              );
-            },
-            child: Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: new Icon(
-                Icons.account_circle,
-                size: 40.0,
               ),
             ),
           )
