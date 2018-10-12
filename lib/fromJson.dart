@@ -3,15 +3,14 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:polytable/main.dart';
 
 Future<Post> fetchPost() async {
-  final response = await http
-      .get('http://ruz2.spbstu.ru/api/v1/ruz/scheduler/26639?date=2018-10-8');
+  final response =
+      await http.get('http://ruz2.spbstu.ru/api/v1/ruz/scheduler/27264');
 
   if (response.statusCode == 200) {
     // If server returns an OK response, parse the JSON
-    return Post.fromJson(json.decode(response.body));
+    return Post.fromJson(json.decode(utf8.decode(response.bodyBytes)));
   } else {
     // If that response was not OK, throw an error.
     throw Exception('Failed to load post');
@@ -19,107 +18,82 @@ Future<Post> fetchPost() async {
 }
 
 class Post {
-  // ignore: non_constant_identifier_names
-  final List<String> week;
-  final List<String> days;
-  final String group;
+  final Map<String, dynamic> week;
+  final List<dynamic> days;
+  final Map<String, dynamic> group;
 
-  // ignore: non_constant_identifier_names
+  //final List<Map<int, String>> dayOfWeek;
+
   Post({this.week, this.days, this.group});
 
   factory Post.fromJson(Map<String, dynamic> json) {
-    return Post(group: json['group']['name']);
+    return Post(
+      week: json['week'],
+      days: json['days'],
+      group: json['group'],
+    );
   }
 }
 
-class fromJson extends StatelessWidget {
+class fromJson extends StatefulWidget {
   @override
+  _fromJsonState createState() => new _fromJsonState();
+}
+
+class _fromJsonState extends State {
+  int day = 0;
+
   Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      title: 'Polytable',
-      theme: new ThemeData(
-        primaryColor: Color.fromARGB(255, 66, 165, 245),
-      ),
-      home: Scaffold(
-        appBar: new AppBar(
-          leading: InkWell(
-            child: Icon(Icons.arrow_back),
-            onTap: () {
-              Navigator.push(
-                  context, MaterialPageRoute(builder: (context) => MyHomePage()));
-            },
-          ),
-          title: FutureBuilder<Post>(
-            future: fetchPost(),
-            builder: (context, snapshot) {
-              if (snapshot.hasData) {
-                return Center(child: Text(snapshot.data.group + " <= JSON"));
-              } else if (snapshot.hasError) {
-                return Text("${snapshot.error}");
-              }
-              // By default, show a loading spinner
-              return CircularProgressIndicator();
-            },
-          ),
-          actions: <Widget>[
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Icon(Icons.account_circle),
-            )
-          ],
-        ),
-        body: Container(
-          color: Colors.green,
-          child: FutureBuilder<Post>(
-            future: fetchPost(),
-            builder: (context, snapshot) {
-              if (snapshot.hasData) {
-                return Center(
-                  child: Column(
-                    children: <Widget>[
-                      Material(
-                        child: Container(
-                          height: 100.0,
-                          color: Colors.blueGrey,
-                          child: Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: InkWell(
-                              onTap: () {
-                                print('I was tapped!');
-                              },
-                              child: Row(
-                                children: <Widget>[
-                                  Padding(
-                                    padding: const EdgeInsets.all(8.0),
-                                    child: Icon(Icons.hotel),
-                                  ),
-                                  Image.network(
-                                      "https://polytable.ru/assets/images/logo3.png"),
-                                  Center(
-                                    child: Text(
-                                      'Hello!',
-                                      textAlign: TextAlign.center,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ),
-                      )
-                    ],
-                  ),
-                );
-              } else if (snapshot.hasError) {
-                return Text("${snapshot.error}");
-              }
-              // By default, show a loading spinner
-              return CircularProgressIndicator();
-            },
-          ),
-        ),
-      ),
+    return new FutureBuilder<Post>(
+      future: fetchPost(),
+      builder: (context, snapshot) {
+        if (snapshot.hasData) {
+          print("days lenght " + "${snapshot.data.days.length}");
+          return new Scaffold(
+              appBar: AppBar(
+                title: Text(snapshot.data.group['name']),
+              ),
+              body: InkWell(
+                onTap: () {
+                  if (day == snapshot.data.days.length - 1)
+                    day = 0;
+                  else
+                    day++;
+                  setState(() {});
+                },
+                child: ListView.builder(
+                    itemCount: snapshot.data.days[day]['lessons'] == null
+                        ? 0
+                        : snapshot.data.days[day]['lessons'].length,
+                    itemBuilder: (context, index) {
+                      return new Container(
+                          child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: <Widget>[
+                          Card(
+                            child: Container(
+                                padding: EdgeInsets.all(15.0),
+                                child: Row(
+                                  children: <Widget>[
+                                    Text(snapshot.data.days[day]['lessons']
+                                        [index]['subject']),
+                                  ],
+                                )),
+                          )
+                        ],
+                      ));
+                    }),
+              ));
+        } else if (snapshot.hasError)
+          return Text("${snapshot.error}");
+        else
+          return Container(
+            height: 100.0,
+            child: LinearProgressIndicator(
+              backgroundColor: Colors.green,
+            ),
+          );
+      },
     );
   }
 }

@@ -3,6 +3,7 @@ import 'dart:math';
 
 import 'package:polytable/Constants.dart';
 import 'package:polytable/fromJson.dart';
+import 'package:polytable/profile.dart';
 
 void main() => runApp(new MyApp());
 
@@ -32,11 +33,11 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   void choiceAction(String choice) {
     if (choice == Constants.Profile) {
-      print('Profile');
+      Navigator.push(
+          context, MaterialPageRoute(builder: (context) => profile()));
     } else if (choice == Constants.Group) {
       Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => fromJson()));
+          context, MaterialPageRoute(builder: (context) => fromJson()));
     }
   }
 
