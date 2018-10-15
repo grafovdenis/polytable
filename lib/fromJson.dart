@@ -3,6 +3,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:polytable/Lesson.dart';
 
 Future<Post> fetchPost() async {
   final response =
@@ -48,7 +49,6 @@ class _fromJsonState extends State {
       future: fetchPost(),
       builder: (context, snapshot) {
         if (snapshot.hasData) {
-          print("days lenght " + "${snapshot.data.days.length}");
           return new Scaffold(
               appBar: AppBar(
                 title: Text(snapshot.data.group['name']),
@@ -66,22 +66,26 @@ class _fromJsonState extends State {
                         ? 0
                         : snapshot.data.days[day]['lessons'].length,
                     itemBuilder: (context, index) {
-                      return new Container(
-                          child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: <Widget>[
-                          Card(
-                            child: Container(
-                                padding: EdgeInsets.all(15.0),
-                                child: Row(
-                                  children: <Widget>[
-                                    Text(snapshot.data.days[day]['lessons']
-                                        [index]['subject']),
-                                  ],
-                                )),
-                          )
-                        ],
-                      ));
+                      String teacher = (snapshot.data.days[day]['lessons']
+                                  [index]['teachers'] !=
+                              null)
+                          ? snapshot.data.days[day]['lessons'][index]
+                              ['teachers'][0]['full_name']
+                          : "";
+                      return new Lesson(
+                          title:
+                              "${snapshot.data.days[day]['lessons'][index]['subject']}",
+                          type:
+                              "${snapshot.data.days[day]['lessons'][index]['typeObj']['name']}",
+                          time_start:
+                              "${snapshot.data.days[day]['lessons'][index]['time_start']}",
+                          time_end:
+                              "${snapshot.data.days[day]['lessons'][index]['time_end']}",
+                          teacher: teacher,
+                          place: "${snapshot.data.days[day]['lessons'][index]['auditories'][0]['building']['name']}" +
+                              ", " +
+                              "${snapshot.data.days[day]['lessons'][index]['auditories'][0]['name']}" +
+                              " каб.");
                     }),
               ));
         } else if (snapshot.hasError)
