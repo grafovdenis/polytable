@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:polytable/Header.dart';
+import 'package:flutter_calendar/flutter_calendar.dart';
+import 'package:polytable/Constants.dart';
+import 'package:polytable/fromJson.dart';
+import 'package:polytable/templates/Header.dart';
 
 class profile extends StatefulWidget {
   @override
@@ -7,16 +10,19 @@ class profile extends StatefulWidget {
 }
 
 class profileState extends State {
-  Widget header;
-
-  profile() {
-    this.header = Header();
+  void choiceAction(String choice) {
+    if (choice == Constants.Group) {
+      Navigator.push(
+          context, MaterialPageRoute(builder: (context) => fromJson()));
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(title: Text("Profile")),
-        body: Center(child: Text("Hi there")));
+        appBar: Header(choiceAction: choiceAction),
+        body: new Calendar(
+          isExpandable: true,
+        ));
   }
 }
