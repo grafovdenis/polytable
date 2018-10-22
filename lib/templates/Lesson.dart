@@ -43,6 +43,7 @@ class _LessonState extends State<Lesson> {
           break;
       }
     }
+
     return (widget.title != null)
         ? new Card(
             margin: EdgeInsets.all(8.0),

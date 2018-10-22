@@ -38,8 +38,8 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   void choiceAction(String choice) {
     if (choice == Constants.Group) {
-      Navigator.push(
-          context, MaterialPageRoute(builder: (context) => new Group(name: "33531/1")));
+      Navigator.push(context,
+          MaterialPageRoute(builder: (context) => new Group(name: "33531/1")));
     }
   }
 

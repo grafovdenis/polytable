@@ -136,16 +136,6 @@ class _GroupState extends State<Group> {
                   child: ListView.builder(
                       itemCount: snapshot.data.weeks[week].length,
                       itemBuilder: (context, lesson) {
-                        if (snapshot.data.weeks[week]['$day'] == null) {
-                          return Center(
-                            child: Text(
-                              "Похоже, что это выходной. *счастье*",
-                              overflow: TextOverflow.clip,
-                              style: TextStyle(
-                                  fontSize: 25.0, color: Colors.white),
-                            ),
-                          );
-                        }
                         if (snapshot.data.weeks[week]['$day']['$lesson'] !=
                             null) {
                           Map<String, dynamic> les =
