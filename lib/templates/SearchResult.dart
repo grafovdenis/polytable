@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:polytable/group.dart';
+import 'package:polytable/Group.dart';
 
 class SearchResult extends StatelessWidget {
   const SearchResult({this.name, this.faculty_abbr});
@@ -12,7 +12,8 @@ class SearchResult extends StatelessWidget {
     return Card(
       child: ListTile(
         onTap: () {
-          Navigator.push(context, MaterialPageRoute(builder: (context) => new group(name)));
+          Navigator.push(context,
+              MaterialPageRoute(builder: (context) => new Group(name: name)));
         },
         title: Text(name),
         subtitle: (faculty_abbr != null) ? Text(faculty_abbr) : Text(""),

@@ -27,6 +27,22 @@ class Lesson extends StatefulWidget {
 class _LessonState extends State<Lesson> {
   @override
   Widget build(BuildContext context) {
+    Color typeColor() {
+      switch (widget.type) {
+        case "Лекции":
+          return Colors.green;
+          break;
+        case "Лабораторные":
+          return Colors.blue;
+          break;
+        case "Практика":
+          return Colors.blue[400];
+          break;
+        default:
+          return Colors.red[400];
+          break;
+      }
+    }
     return (widget.title != null)
         ? new Card(
             margin: EdgeInsets.all(8.0),
@@ -50,7 +66,7 @@ class _LessonState extends State<Lesson> {
                               textAlign: TextAlign.center,
                               overflow: TextOverflow.clip,
                               style:
-                                  TextStyle(fontSize: 14.0, color: Colors.blue),
+                                  TextStyle(fontSize: 14.0, color: typeColor()),
                             )
                           : Text("")),
                   Container(

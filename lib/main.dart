@@ -4,7 +4,7 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 
 import 'package:polytable/Constants.dart';
-import 'package:polytable/WeekFromAPI.dart';
+import 'package:polytable/Group.dart';
 import 'package:polytable/templates/Header.dart';
 import 'package:polytable/templates/SearchResult.dart';
 
@@ -39,7 +39,7 @@ class _MyHomePageState extends State<MyHomePage> {
   void choiceAction(String choice) {
     if (choice == Constants.Group) {
       Navigator.push(
-          context, MaterialPageRoute(builder: (context) => new WeekFromAPI()));
+          context, MaterialPageRoute(builder: (context) => new Group(name: "33531/1")));
     }
   }
 
