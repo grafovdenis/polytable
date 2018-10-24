@@ -25,6 +25,45 @@ class Lesson extends StatefulWidget {
 }
 
 class _LessonState extends State<Lesson> {
+  Container buildField(String field, Color textColor, double fontSize) {
+    return Container(
+        child: (field != null)
+            ? Text(
+                field,
+                textAlign: TextAlign.center,
+                overflow: TextOverflow.clip,
+                style: TextStyle(fontSize: fontSize, color: textColor),
+              )
+            : Text(""));
+  }
+
+  Container buildFields(List<dynamic> fields, double fontSize) {
+    return Container(
+        child: (fields.toString() != "[]")
+            ? (fields.length == 2)
+                ? Column(children: [
+                    Text(
+                      fields[0]['name'],
+                      textAlign: TextAlign.center,
+                      overflow: TextOverflow.clip,
+                      style: TextStyle(fontSize: fontSize),
+                    ),
+                    Text(
+                      fields[1]['name'],
+                      textAlign: TextAlign.center,
+                      overflow: TextOverflow.clip,
+                      style: TextStyle(fontSize: fontSize),
+                    )
+                  ])
+                : Text(
+                    fields[0]['name'],
+                    textAlign: TextAlign.center,
+                    overflow: TextOverflow.clip,
+                    style: TextStyle(fontSize: fontSize),
+                  )
+            : Text(""));
+  }
+
   @override
   Widget build(BuildContext context) {
     Color typeColor() {
@@ -45,71 +84,26 @@ class _LessonState extends State<Lesson> {
     }
 
     return (widget.title != null)
-        ? new Card(
-            margin: EdgeInsets.all(8.0),
-            child: Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Column(
-                children: <Widget>[
-                  Container(
-                      child: (widget.title != null)
-                          ? Text(
-                              widget.title,
-                              textAlign: TextAlign.center,
-                              overflow: TextOverflow.clip,
-                              style: TextStyle(fontSize: 18.0),
-                            )
-                          : Text("")),
-                  Container(
-                      child: (widget.type != null)
-                          ? Text(
-                              widget.type,
-                              textAlign: TextAlign.center,
-                              overflow: TextOverflow.clip,
-                              style:
-                                  TextStyle(fontSize: 14.0, color: typeColor()),
-                            )
-                          : Text("")),
-                  Container(
-                    child:
-                        (widget.time_start != null && widget.time_end != null)
-                            ? Text(
-                                widget.time_start + " - " + widget.time_end,
-                                textAlign: TextAlign.center,
-                                overflow: TextOverflow.clip,
-                                style: TextStyle(fontSize: 14.0),
-                              )
-                            : Text(""),
-                  ),
-                  Container(
-                      child: (widget.teachers.toString() != "[]")
-                          ? Text(
-                              (widget.teachers.length == 2)
-                                  ? [
-                                      widget.teachers[0]['name'],
-                                      widget.teachers[1]['name']
-                                    ].join(",\n")
-                                  : widget.teachers[0]['name'],
-                              textAlign: TextAlign.center,
-                              overflow: TextOverflow.clip,
-                              style: TextStyle(fontSize: 14.0),
-                            )
-                          : Text("")),
-                  Container(
-                      child: (widget.places.toString() != "[]")
-                          ? Text(
-                              (widget.places.length == 2)
-                                  ? [
-                                      widget.places[0]['name'],
-                                      widget.places[1]['name']
-                                    ].join(",\n")
-                                  : widget.places[0]['name'],
-                              textAlign: TextAlign.center,
-                              overflow: TextOverflow.clip,
-                              style: TextStyle(fontSize: 14.0),
-                            )
-                          : Text("")),
-                ],
+        ? InkWell(
+            onTap: () {
+              setState(() {
+                print('Lesson ${widget.title} tapped');
+              });
+            },
+            child: new Card(
+              margin: EdgeInsets.all(8.0),
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Column(
+                  children: <Widget>[
+                    buildField(widget.title, Colors.black, 18.0),
+                    buildField(widget.type, typeColor(), 16.0),
+                    buildField(widget.time_start + " - " + widget.time_end,
+                        Colors.black, 16.0),
+                    buildFields(widget.teachers, 16.0),
+                    buildFields(widget.places, 16.0)
+                  ],
+                ),
               ),
             ),
           )

@@ -88,7 +88,13 @@ class _GroupState extends State<Group> {
       buildDays.add(_buildDay(snapshot, 1, i));
     }
     return Scaffold(
-      appBar: Header(),
+      appBar: Header(
+        title: Center(
+            child: Text(
+          widget.name,
+          style: TextStyle(fontWeight: FontWeight.bold),
+        )),
+      ),
       body: PageView(
         children: buildDays,
       ),
