@@ -3,8 +3,11 @@ import 'dart:math';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
+import 'package:flutter/services.dart';
+
 import 'package:polytable/Constants.dart';
 import 'package:polytable/Group.dart';
+import 'package:polytable/CalendarTest.dart';
 import 'package:polytable/templates/SearchResult.dart';
 
 void main() => runApp(new MyApp());
@@ -13,6 +16,11 @@ class MyApp extends StatelessWidget {
   //TODO fix navigation, divide into classes
   @override
   Widget build(BuildContext context) {
+    const MethodChannel _channel = MethodChannel("polytable.flutter.io/week");
+    _channel.invokeMethod("getWeekNumber", <String, String>{
+      "date" : "2018-12-121"
+    }).then((week) => print("Number of week^ $week"))
+    .catchError((e) => print("hui"));
     return new MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Polytable',
@@ -48,6 +56,10 @@ class _MyHomePageState extends State<MyHomePage> {
     if (choice == Constants.Group) {
       Navigator.push(context,
           MaterialPageRoute(builder: (context) => new Group(name: "33531/2")));
+    } else if (choice == Constants.Profile) {
+      Navigator.push(context,
+        MaterialPageRoute(builder: (context) => new CalendarTest())
+      );
     }
   }
 
@@ -66,11 +78,18 @@ class _MyHomePageState extends State<MyHomePage> {
   List<SearchResult> results = new List();
 
   void _findGroups(String group) async {
-    results = List();
+    results.clear();
     final String url = "https://polytable.ru/search.php?query=";
     String query = url + group.trim();
-    final response = await http.get(query);
+    await http.get(query)
+        .then((response) =>
+            json.decode(utf8.decode(response.bodyBytes))
+              .forEach((element) => results.add(new SearchResult(
+                name: element['name'],
+                faculty_abbr: element['faculty_abbr']))))
+        .catchError((e) => print(e));
 
+  /*
     if (response.statusCode == 200) {
       // If server returns an OK response, parse the JSON
       List<dynamic> res = json.decode(utf8.decode(response.bodyBytes));
@@ -81,6 +100,8 @@ class _MyHomePageState extends State<MyHomePage> {
       // If that response was not OK, throw an error.
       throw Exception('Failed to load post');
     }
+    */
+    print(results);
     setState(() {});
   }
 
@@ -157,7 +178,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     ),
                   ),
                 ),
-                (results.toString() != "[]")
+                (results.isNotEmpty)
                     ? Column(children: results)
                     : Container(
                   width: 0.0,

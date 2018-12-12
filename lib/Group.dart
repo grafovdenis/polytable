@@ -2,9 +2,11 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_calendar/flutter_calendar.dart';
 import 'package:http/http.dart' as http;
 import 'package:polytable/templates/Header.dart';
 import 'package:polytable/templates/Lesson.dart';
+import 'package:polytable/templates/Calendar.dart';
 
 Future<Post> fetchPost(String name) async {
   var url = 'https://polytable.ru/action.php?action=calendar&group=';
@@ -61,6 +63,8 @@ class Group extends StatefulWidget {
 }
 
 class _GroupState extends State<Group> {
+  var currentWeekday = new DateTime.now().weekday - 1;
+
   Widget build(BuildContext context) {
     return new FutureBuilder<Post>(
       future: fetchPost(widget.name),
@@ -97,7 +101,9 @@ class _GroupState extends State<Group> {
       ),
       body: PageView(
         children: buildDays,
+        controller: PageController(initialPage: currentWeekday),
       ),
+      bottomNavigationBar: BottomCalendar()
     );
   }
 
@@ -112,7 +118,7 @@ class _GroupState extends State<Group> {
       7: "Воскресенье"
     };
     return Container(
-      color: Colors.green,
+      color: Colors.green[400],
       child: Column(
         children: <Widget>[
           Padding(

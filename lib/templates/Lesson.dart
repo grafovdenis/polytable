@@ -78,7 +78,7 @@ class _LessonState extends State<Lesson> {
           return Colors.blue[400];
           break;
         default:
-          return Colors.red[400];
+          return Colors.green;
           break;
       }
     }
