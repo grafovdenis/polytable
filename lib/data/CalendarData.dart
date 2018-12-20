@@ -46,9 +46,11 @@ class CalendarData {
     }).catchError((e) => print(e));
     DateTime now = DateTime.now();
     return [
+      await this.get(_dateFormat.format(now.subtract(Duration(days: 2)))),
       await this.get(_dateFormat.format(now.subtract(Duration(days: 1)))),
       await this.get(_dateFormat.format(now)),
-      await this.get(_dateFormat.format(now.add(Duration(days: 1))))
+      await this.get(_dateFormat.format(now.add(Duration(days: 1)))),
+      await this.get(_dateFormat.format(now.add(Duration(days: 2))))
     ];
   }
 
@@ -64,8 +66,9 @@ class CalendarData {
           Map<int, LessonData> lessons = Map();
           if (_dynamic.containsKey(key))
             lessons.addAll(_dynamic[key].lessons.asMap().map((key, value) => MapEntry(value.lesson, value)));
+          if (((isOdd) ? _odd : _even).days.containsKey(date.weekday))
           lessons.addAll(((isOdd) ? _odd : _even)
-              .days[date.weekday - 1]
+              .days[date.weekday]
               .lessons
               .where((lesson) => !lessons.containsKey(lesson.lesson))
               .toList().asMap()
@@ -93,10 +96,12 @@ class CalendarData {
 }
 
 class Week {
-    List<Day> days = List();
-    Week(Map<String, dynamic> days) { days.values.forEach((day) => this.days.add(Day.static(day))); }
+    Map<int, Day> days = Map();
+    Week(Map<String, dynamic> days) {
+      this.days = days.map((key, value) => MapEntry<int, Day>(int.parse(key), Day.static(value)));
+    }
 
-    operator [](int key) => days[key];
+    operator [](int key) => days.containsKey(key) ? days[key] : Day.empty();
 }
 
 class Day {

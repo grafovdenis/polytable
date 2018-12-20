@@ -9,52 +9,6 @@ import 'package:polytable/templates/Lesson.dart';
 import 'package:polytable/templates/Calendar.dart';
 import 'package:polytable/data/CalendarData.dart';
 
-Future<Post> fetchPost(String name) async {
-  var url = 'https://polytable.ru/action.php?action=calendar&group=';
-  final response = await http.get(url + Uri.encodeComponent(name));
-
-  if (response.statusCode == 200) {
-    var res = json.decode(utf8.decode(response.bodyBytes));
-    // If server returns an OK response, parse the JSON
-    return Post.fromJson(res);
-  } else {
-    // If that response was not OK, throw an error.
-    throw Exception('Failed to load post');
-  }
-}
-
-class Post {
-  final String groupName;
-  final List<Map<String, dynamic>> weeks;
-
-  //final List<Map<int, String>> dayOfWeek;
-
-  Post({this.groupName, this.weeks});
-
-  factory Post.fromJson(Map<String, dynamic> json) {
-    Map<String, dynamic> week0 = new Map();
-    Map<String, dynamic> week1 = new Map();
-    Map<String, dynamic> days0 = json['data']['static'][0];
-    Map<String, dynamic> days1 = json['data']['static'][1];
-    print(json['data']['static'] is List);
-
-    void arraysToMaps(key, value, week) {
-      var day = (value is Map)
-          ? value
-          : Map.fromIterable(value,
-              key: (object) => object['lesson'], value: (object) => object);
-      week.putIfAbsent(("$key"), () => day);
-    }
-
-    days0.forEach((key, value) => arraysToMaps(key, value, week0));
-    days1.forEach((key, value) => arraysToMaps(key, value, week1));
-    return Post(
-      groupName: "33531/1",
-      weeks: List.of([week0, week1]),
-    );
-  }
-}
-
 class Group extends StatefulWidget {
   final CalendarData calendar;
   final String name;
@@ -70,7 +24,7 @@ class _GroupState extends State<Group> {
   List<Widget> buildDays = List();
   List<Day> days = List();
   bool loaded = false;
-
+  int page = 2;
 
   Widget build(BuildContext context) {
     if (!loaded) {
@@ -102,7 +56,7 @@ class _GroupState extends State<Group> {
         buildDays.add(_buildDay(day));
       });
 
-    PageController pageController = PageController(initialPage: 1);
+    PageController pageController = PageController(initialPage: page, keepPage: true);
     PageView pageView = PageView.builder(
       itemCount: buildDays.length,
       itemBuilder: (BuildContext context, int index) {
@@ -113,13 +67,18 @@ class _GroupState extends State<Group> {
         if (index == 0) {
           Day day = await widget.calendar.get(widget.calendar.getDateKey(days[0].date.subtract(Duration(days: 1))));
           setState(() {
+            page = 1;
             days.insert(0, day);
             buildDays.insert(0, _buildDay(day));
-            //pageController.animateToPage(1, duration: Duration(microseconds: 500), curve: Curves.easeInOut);
+            pageController.jumpToPage(1);
           });
-
         } else if (index == buildDays.length - 1) {
-
+          Day day = await widget.calendar.get(widget.calendar.getDateKey(days[days.length - 1].date.add(Duration(days: 1))));
+          setState(() {
+            page = index;
+            days.add(day);
+            buildDays.add(_buildDay(day));
+          });
         } else {
           print("No update needded, index $index of ${buildDays.length}");
         }
