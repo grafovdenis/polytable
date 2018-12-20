@@ -8,18 +8,14 @@ class Lesson extends StatefulWidget {
       this.time_start,
       this.time_end,
       this.teachers,
-      this.teacher,
-      this.places,
-      this.place});
+      this.places});
 
   final String title;
   final String type;
   final String time_start;
   final String time_end;
   final List<dynamic> teachers;
-  final String teacher;
   final List<dynamic> places;
-  final String place;
 
   @override
   _LessonState createState() => new _LessonState();

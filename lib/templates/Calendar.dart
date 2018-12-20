@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_calendar/flutter_calendar.dart';
+import 'package:polytable/calendar/flutter_calendar.dart';
 
 class BottomCalendar extends StatefulWidget {
   BottomCalendar({Key key}) : super(key: key);

@@ -1,12 +1,7 @@
-import 'dart:async';
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
-import 'package:flutter_calendar/flutter_calendar.dart';
-import 'package:http/http.dart' as http;
+import 'package:polytable/calendar/flutter_calendar.dart';
 import 'package:polytable/templates/Header.dart';
 import 'package:polytable/templates/Lesson.dart';
-import 'package:polytable/templates/Calendar.dart';
 import 'package:polytable/data/CalendarData.dart';
 
 class Group extends StatefulWidget {
@@ -95,7 +90,7 @@ class _GroupState extends State<Group> {
         )),
       ),
       body: pageView,
-      bottomNavigationBar: BottomCalendar()
+      bottomNavigationBar: Calendar()
     );
   }
 
