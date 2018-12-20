@@ -3,24 +3,16 @@ import 'dart:math';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
-import 'package:flutter/services.dart';
-
 import 'package:polytable/Constants.dart';
 import 'package:polytable/Group.dart';
-import 'package:polytable/CalendarTest.dart';
 import 'package:polytable/templates/SearchResult.dart';
 
-void main() => runApp(new MyApp());
+void main() async => runApp(new MyApp());
 
 class MyApp extends StatelessWidget {
   //TODO fix navigation, divide into classes
   @override
   Widget build(BuildContext context) {
-    const MethodChannel _channel = MethodChannel("polytable.flutter.io/week");
-    _channel.invokeMethod("getWeekNumber", <String, String>{
-      "date" : "2018-12-121"
-    }).then((week) => print("Number of week^ $week"))
-    .catchError((e) => print("hui"));
     return new MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Polytable',
@@ -57,9 +49,7 @@ class _MyHomePageState extends State<MyHomePage> {
       Navigator.push(context,
           MaterialPageRoute(builder: (context) => new Group(name: "33531/2")));
     } else if (choice == Constants.Profile) {
-      Navigator.push(context,
-        MaterialPageRoute(builder: (context) => new CalendarTest())
-      );
+
     }
   }
 
