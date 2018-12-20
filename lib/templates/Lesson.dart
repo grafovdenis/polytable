@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:polytable/data/CalendarData.dart';
 
 class Lesson extends StatefulWidget {
   const Lesson(
@@ -38,30 +39,19 @@ class _LessonState extends State<Lesson> {
   }
 
   Container buildFields(List<dynamic> fields, double fontSize) {
-    return Container(
-        child: (fields.toString() != "[]")
-            ? (fields.length == 2)
-                ? Column(children: [
-                    Text(
-                      fields[0]['name'],
-                      textAlign: TextAlign.center,
-                      overflow: TextOverflow.clip,
-                      style: TextStyle(fontSize: fontSize),
-                    ),
-                    Text(
-                      fields[1]['name'],
-                      textAlign: TextAlign.center,
-                      overflow: TextOverflow.clip,
-                      style: TextStyle(fontSize: fontSize),
-                    )
-                  ])
-                : Text(
-                    fields[0]['name'],
-                    textAlign: TextAlign.center,
-                    overflow: TextOverflow.clip,
-                    style: TextStyle(fontSize: fontSize),
-                  )
-            : Text(""));
+    if (fields.isEmpty)
+      return Container(child: Text(""));
+    List<Widget> text = List();
+    fields.forEach((field) {
+      String name = (field is Teacher) ? field.name : (field as Building).name;
+      text.add(Text(
+          name,
+          textAlign: TextAlign.center,
+          overflow: TextOverflow.clip,
+          style: TextStyle(fontSize: fontSize)
+      ));
+    });
+    return Container(child: Column(children: text));
   }
 
   @override

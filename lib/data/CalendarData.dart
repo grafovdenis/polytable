@@ -25,6 +25,8 @@ class CalendarData {
 
   CalendarData(String groupName) : this.groupName = groupName;
 
+  String getDateKey(DateTime date) => _dateFormat.format(date);
+
   Future<List<Day>> load () async {
     await http.get("$POLYTABLE_API_URL$groupName").then((response) async {
       Map<String, dynamic> res = json.decode(utf8.decode(response.bodyBytes))['data'];

@@ -7,6 +7,7 @@ import 'package:http/http.dart' as http;
 import 'package:polytable/templates/Header.dart';
 import 'package:polytable/templates/Lesson.dart';
 import 'package:polytable/templates/Calendar.dart';
+import 'package:polytable/data/CalendarData.dart';
 
 Future<Post> fetchPost(String name) async {
   var url = 'https://polytable.ru/action.php?action=calendar&group=';
@@ -35,6 +36,7 @@ class Post {
     Map<String, dynamic> week1 = new Map();
     Map<String, dynamic> days0 = json['data']['static'][0];
     Map<String, dynamic> days1 = json['data']['static'][1];
+    print(json['data']['static'] is List);
 
     void arraysToMaps(key, value, week) {
       var day = (value is Map)
@@ -54,9 +56,10 @@ class Post {
 }
 
 class Group extends StatefulWidget {
-  const Group({this.name});
-
+  final CalendarData calendar;
   final String name;
+
+  Group({this.name}) : calendar = CalendarData(name);
 
   @override
   _GroupState createState() => new _GroupState();
@@ -64,33 +67,66 @@ class Group extends StatefulWidget {
 
 class _GroupState extends State<Group> {
   var currentWeekday = new DateTime.now().weekday - 1;
+  List<Widget> buildDays = List();
+  List<Day> days = List();
+  bool loaded = false;
+
 
   Widget build(BuildContext context) {
-    return new FutureBuilder<Post>(
-      future: fetchPost(widget.name),
-      builder: (context, snapshot) {
-        if (snapshot.hasData) {
-          return _buildDays(snapshot);
-        } else if (snapshot.hasError)
-          return Text("${snapshot.error}");
-        else
-          return Scaffold(
-            appBar: Header(),
-            backgroundColor: Colors.green,
-            body: LinearProgressIndicator(),
-          );
-      },
-    );
+    if (!loaded) {
+      return new FutureBuilder<List<Day>>(
+        future: widget.calendar.load(),
+        builder: (context, snapshot) {
+          if (snapshot.hasData) {
+            loaded = true;
+            return _buildDays(snapshot: snapshot);
+          } else if (snapshot.hasError)
+            return Text("${snapshot.error}");
+          else
+            return Scaffold(
+              appBar: Header(),
+              backgroundColor: Colors.green,
+              body: LinearProgressIndicator(),
+            );
+        },
+      );
+    } else {
+      return _buildDays();
+    }
   }
 
-  _buildDays(AsyncSnapshot<Post> snapshot) {
-    List<Widget> buildDays = List();
-    for (int i = 1; i <= 7; i++) {
-      buildDays.add(_buildDay(snapshot, 0, i));
-    }
-    for (int i = 1; i <= 7; i++) {
-      buildDays.add(_buildDay(snapshot, 1, i));
-    }
+  _buildDays({AsyncSnapshot<List<Day>> snapshot}) {
+    if (snapshot != null)
+      snapshot.data.forEach((day) {
+        days.add(day);
+        buildDays.add(_buildDay(day));
+      });
+
+    PageController pageController = PageController(initialPage: 1);
+    PageView pageView = PageView.builder(
+      itemCount: buildDays.length,
+      itemBuilder: (BuildContext context, int index) {
+        return buildDays[index];
+      },
+      controller: pageController,
+      onPageChanged: (index) async {
+        if (index == 0) {
+          Day day = await widget.calendar.get(widget.calendar.getDateKey(days[0].date.subtract(Duration(days: 1))));
+          setState(() {
+            days.insert(0, day);
+            buildDays.insert(0, _buildDay(day));
+            //pageController.animateToPage(1, duration: Duration(microseconds: 500), curve: Curves.easeInOut);
+          });
+
+        } else if (index == buildDays.length - 1) {
+
+        } else {
+          print("No update needded, index $index of ${buildDays.length}");
+        }
+      },
+    );
+    
+    
     return Scaffold(
       appBar: Header(
         title: Center(
@@ -99,15 +135,12 @@ class _GroupState extends State<Group> {
           style: TextStyle(fontWeight: FontWeight.bold),
         )),
       ),
-      body: PageView(
-        children: buildDays,
-        controller: PageController(initialPage: currentWeekday),
-      ),
+      body: pageView,
       bottomNavigationBar: BottomCalendar()
     );
   }
 
-  _buildDay(AsyncSnapshot<Post> snapshot, int week, int day) {
+  _buildDay(Day day) {
     var weekday = {
       1: "Понедельник",
       2: "Вторник",
@@ -124,7 +157,7 @@ class _GroupState extends State<Group> {
           Padding(
             padding: const EdgeInsets.only(top: 8.0),
             child: Text(
-              "${(week == 0) ? "Чётная неделя:" : "Нечётная неделя:"}\n${weekday[day]}",
+              "${(!day.isOdd) ? "Чётная неделя:" : "Нечётная неделя:"}\n${weekday[day.weekday]}(${day.dateKey})",
               textAlign: TextAlign.center,
               overflow: TextOverflow.clip,
               style: TextStyle(
@@ -133,7 +166,7 @@ class _GroupState extends State<Group> {
                   color: Colors.white70),
             ),
           ),
-          (snapshot.data.weeks[week]['$day'] == null)
+          (day.lessons.isEmpty)
               ? Container(
                   padding: EdgeInsets.only(top: 30.0),
                   alignment: Alignment.center,
@@ -146,22 +179,16 @@ class _GroupState extends State<Group> {
                 )
               : Flexible(
                   child: ListView.builder(
-                      itemCount: snapshot.data.weeks[week].length,
+                      itemCount: day.lessons.length,
                       itemBuilder: (context, lesson) {
-                        if (snapshot.data.weeks[week]['$day']['$lesson'] !=
-                            null) {
-                          Map<String, dynamic> les =
-                              snapshot.data.weeks[week]['$day']['$lesson'];
                           return Lesson(
-                            title: les['subject'],
-                            type: les['type'],
-                            time_start: les['time_start'],
-                            time_end: les['time_end'],
-                            teachers: les['teachers'],
-                            places: les['places'],
+                            title: day[lesson].subject,
+                            type: day[lesson].type,
+                            time_start: day[lesson].timeStart,
+                            time_end: day[lesson].timeEnd,
+                            teachers: day[lesson].teachers,
+                            places: day[lesson].places,
                           );
-                        } else
-                          return Lesson();
                       }),
                 ),
         ],
