@@ -10,6 +10,7 @@ typedef DayBuilder(BuildContext context, DateTime day);
 class Calendar extends StatefulWidget {
   final ValueChanged<DateTime> onDateSelected;
   final ValueChanged<Tuple2<DateTime, DateTime>> onSelectedRangeChange;
+  ValueChanged<DateTime> actualSelectedDate;
   final bool isExpandable;
   final DayBuilder dayBuilder;
   final bool showChevronsToChangeRange;
@@ -28,8 +29,15 @@ class Calendar extends StatefulWidget {
         this.showCalendarPickerIcon: true,
         this.initialCalendarDateOverride,
         this.weekStartsOnMonday: false,
+        this.actualSelectedDate,
         });
-  
+
+  void setDate(DateTime date) {
+    if (this.actualSelectedDate != null) {
+      actualSelectedDate(date);
+    }
+  }
+
   @override
   _CalendarState createState() => new _CalendarState();
 }
@@ -39,6 +47,7 @@ class _CalendarState extends State<Calendar> {
   List<DateTime> selectedMonthsDays;
   Iterable<DateTime> selectedWeeksDays;
   DateTime _selectedDate = new DateTime.now();
+  DateTime _actualSelectedDate = new DateTime.now();
   String currentMonth;
   bool isExpanded = false;
   String displayMonth;
@@ -150,11 +159,6 @@ class _CalendarState extends State<Calendar> {
     );
   }
 
-  void setDate(DateTime date) {
-    setState(() {
-      _selectedDate = date;
-    });
-  }
 
   List<Widget> calendarBuilder() {
     List<Widget> dayWidgets = [];
@@ -190,16 +194,16 @@ class _CalendarState extends State<Calendar> {
             new CalendarTile(
               child: this.widget.dayBuilder(context, day),
               date: day,
-              onDateSelected: () => handleSelectedDateAndUserCallback(day),
+              onDateSelected: () => handleSelectedDateAndUserCallback(day, true),
             ),
           );
         } else {
           dayWidgets.add(
             new CalendarTile(
-              onDateSelected: () => handleSelectedDateAndUserCallback(day),
+              onDateSelected: () => handleSelectedDateAndUserCallback(day, true),
               date: day,
               dateStyles: configureDateStyle(monthStarted, monthEnded),
-              isSelected: Utils.isSameDay(selectedDate, day),
+              isSelected: Utils.isSameDay(_actualSelectedDate, day),
             ),
           );
         }
@@ -243,6 +247,12 @@ class _CalendarState extends State<Calendar> {
 
   @override
   Widget build(BuildContext context) {
+    widget.actualSelectedDate = (DateTime date) {
+      setState(() {
+        _actualSelectedDate = date;
+        handleSelectedDateAndUserCallback(date, false);
+      });
+    };
     return new Container(
       child: new Column(
         mainAxisAlignment: MainAxisAlignment.start,
@@ -397,7 +407,7 @@ class _CalendarState extends State<Calendar> {
     }
   }
 
-  void handleSelectedDateAndUserCallback(DateTime day) {
+  void handleSelectedDateAndUserCallback(DateTime day, bool callback) {
     var firstDayOfCurrentWeek = Utils.firstDayOfWeek(day);
     var lastDayOfCurrentWeek = Utils.lastDayOfWeek(day);
     setState(() {
@@ -407,10 +417,12 @@ class _CalendarState extends State<Calendar> {
               .toList();
       selectedMonthsDays = Utils.daysInMonth(day);
     });
-    _launchDateSelectionCallback(day);
+    if (callback)
+      _launchDateSelectionCallback(day);
   }
 
   void _launchDateSelectionCallback(DateTime day) {
+    _actualSelectedDate = day;
     if (widget.onDateSelected != null) {
       widget.onDateSelected(day);
     }

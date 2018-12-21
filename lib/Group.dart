@@ -49,6 +49,20 @@ class _GroupState extends State<Group> {
       });
 
     PageController pageController = PageController(initialPage: page, keepPage: true);
+    Calendar calendar = Calendar(
+      onDateSelected: (DateTime date) async {
+        List<Day> days = await widget.calendar.getAcross(date);
+        setState(() {
+          this.days = List();
+          this.buildDays = List();
+          days.forEach((day) {
+            this.days.add(day);
+            buildDays.add(_buildDay(day));
+            pageController.jumpToPage(2);
+          });
+        });
+      },
+    );
     PageView pageView = PageView.builder(
       itemCount: buildDays.length,
       itemBuilder: (BuildContext context, int index) {
@@ -64,6 +78,7 @@ class _GroupState extends State<Group> {
             days.insert(0, day);
             buildDays.insert(0, _buildDay(day));
             pageController.jumpToPage(1);
+            calendar.setDate(days[1].date);
           });
         } else if (index == buildDays.length - 1) {
           Day day = await widget.calendar.get(widget.calendar.getDateKey(days[days.length - 1].date.add(Duration(days: 1))));
@@ -72,10 +87,13 @@ class _GroupState extends State<Group> {
             days.add(day);
             buildDays.add(_buildDay(day));
           });
+          calendar.setDate(days[index].date);
         } else {
           print("No update needded, index $index of ${buildDays.length}");
+          calendar.setDate(days[index].date);
         }
         print("After jump > ${pageController.offset}");
+
       },
 
     );
@@ -89,20 +107,7 @@ class _GroupState extends State<Group> {
         )),
       ),
       body: pageView,
-      bottomNavigationBar: Calendar(
-        onDateSelected: (DateTime date) async {
-          List<Day> days = await widget.calendar.getAcross(date);
-          setState(() {
-            this.days = List();
-            this.buildDays = List();
-            days.forEach((day) {
-              this.days.add(day);
-              buildDays.add(_buildDay(day));
-              pageController.jumpToPage(2);
-            });
-          });
-        },
-      )
+      bottomNavigationBar: calendar
     );
   }
 
