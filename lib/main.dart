@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'dart:math';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:http/http.dart' as http;
@@ -57,9 +58,7 @@ class _MyHomePageState extends State<MyHomePage> {
     if (choice == Constants.Group) {
       Navigator.push(context,
           MaterialPageRoute(builder: (context) => new Group(name: "33531/2")));
-    } else if (choice == Constants.Profile) {
-
-    }
+    } else if (choice == Constants.Profile) {}
   }
 
   //TODO Добавить рарки
@@ -88,7 +87,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 faculty_abbr: element['faculty_abbr']))))
         .catchError((e) => print(e));
 
-  /*
+    /*
     if (response.statusCode == 200) {
       // If server returns an OK response, parse the JSON
       List<dynamic> res = json.decode(utf8.decode(response.bodyBytes));
@@ -162,7 +161,7 @@ class _MyHomePageState extends State<MyHomePage> {
               children: <Widget>[
                 Padding(
                   padding:
-                  const EdgeInsets.only(top: 60.0, right: 30.0, left: 30.0),
+                      const EdgeInsets.only(top: 60.0, right: 30.0, left: 30.0),
                   child: new TextField(
                     onSubmitted: _findGroups,
                     style: TextStyle(
@@ -179,10 +178,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 ),
                 (results.isNotEmpty)
                     ? Column(children: results)
-                    : Container(
-                  width: 0.0,
-                  height: 0.0,
-                ),
+                    : Container(width: 0.0, height: 0.0),
               ],
             ),
           ),
