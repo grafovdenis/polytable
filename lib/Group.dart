@@ -1,13 +1,8 @@
-import 'dart:async';
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
-import 'package:flutter_calendar/flutter_calendar.dart';
-import 'package:http/http.dart' as http;
 import 'package:polytable/templates/Header.dart';
 import 'package:polytable/templates/Lesson.dart';
-import 'package:polytable/templates/Calendar.dart';
 import 'package:polytable/data/CalendarData.dart';
+import 'package:polytable/calendar/flutter_calendar.dart';
 
 class Group extends StatefulWidget {
   final CalendarData calendar;
@@ -28,25 +23,22 @@ class _GroupState extends State<Group> {
 
   Widget build(BuildContext context) {
     if (!loaded) {
-      return new FutureBuilder<List<Day>>(
-        future: widget.calendar.load(),
-        builder: (context, snapshot) {
-          if (snapshot.hasData) {
-            loaded = true;
-            return _buildDays(snapshot: snapshot);
-          } else if (snapshot.hasError)
-            return Text("${snapshot.error}");
-          else
-            return Scaffold(
-              appBar: Header(),
-              backgroundColor: Colors.green,
-              body: LinearProgressIndicator(),
-            );
-        },
+      widget.calendar.load().then((data) {
+        setState(() {
+          data.forEach((day) {
+            days.add(day);
+            buildDays.add(_buildDay(day));
+          });
+          loaded = true;
+        });
+      });
+      return Scaffold(
+        appBar: Header(),
+        backgroundColor: Colors.green,
+        body: LinearProgressIndicator(),
       );
-    } else {
+    } else
       return _buildDays();
-    }
   }
 
   _buildDays({AsyncSnapshot<List<Day>> snapshot}) {
@@ -64,6 +56,7 @@ class _GroupState extends State<Group> {
       },
       controller: pageController,
       onPageChanged: (index) async {
+        print("Before jump > ${pageController.offset}");
         if (index == 0) {
           Day day = await widget.calendar.get(widget.calendar.getDateKey(days[0].date.subtract(Duration(days: 1))));
           setState(() {
@@ -82,6 +75,7 @@ class _GroupState extends State<Group> {
         } else {
           print("No update needded, index $index of ${buildDays.length}");
         }
+        print("After jump > ${pageController.offset}");
       },
     );
     
@@ -95,7 +89,19 @@ class _GroupState extends State<Group> {
         )),
       ),
       body: pageView,
-      bottomNavigationBar: BottomCalendar()
+      bottomNavigationBar: Calendar(
+        onDateSelected: (DateTime date) async {
+          List<Day> days = await widget.calendar.getAcross(date);
+          setState(() {
+            this.days = List();
+            this.buildDays = List();
+            days.forEach((day) {
+              this.days.add(day);
+              buildDays.add(_buildDay(day));
+            });
+          });
+        },
+      )
     );
   }
 
@@ -147,6 +153,7 @@ class _GroupState extends State<Group> {
                             time_end: day[lesson].timeEnd,
                             teachers: day[lesson].teachers,
                             places: day[lesson].places,
+                            homework: day[lesson].homework,
                           );
                       }),
                 ),

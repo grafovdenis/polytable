@@ -21,11 +21,13 @@ class CalendarData {
   Week _odd;
   Week _even;
   Map<String, Day> _dynamic = Map();
+  Map<String, dynamic> _homework = Map();
   Map<String, Day> _ready = Map();
 
   CalendarData(String groupName) : this.groupName = groupName;
 
   String getDateKey(DateTime date) => _dateFormat.format(date);
+  int getSemesterLength() => _timetableEnd.difference(_timetableStart).inDays + 1;
 
   Future<List<Day>> load () async {
     await http.get("$POLYTABLE_API_URL$groupName").then((response) async {
@@ -43,6 +45,11 @@ class CalendarData {
       } catch (e) {
         print("Dynamic cache not present");
       }
+      try {
+        _homework = (res['homework'] as Map<String, dynamic>);
+      } catch (e) {
+        print("No homework for $groupName found");
+      }
     }).catchError((e) => print(e));
     DateTime now = DateTime.now();
     return [
@@ -54,12 +61,23 @@ class CalendarData {
     ];
   }
 
+  Future<List<Day>> getAcross(DateTime date) async {
+    return [
+      await this.get(_dateFormat.format(date.subtract(Duration(days: 2)))),
+      await this.get(_dateFormat.format(date.subtract(Duration(days: 1)))),
+      await this.get(_dateFormat.format(date)),
+      await this.get(_dateFormat.format(date.add(Duration(days: 1)))),
+      await this.get(_dateFormat.format(date.add(Duration(days: 2))))
+    ];
+  }
+
   Future<Day> get(String key) async {
     if (_ready.containsKey(key))
       return _ready[key];
     else {
       DateTime date = DateTime.parse(key);
       bool isOdd =  (await getWeek(key) - staticStartWeek) % 2 == 0;
+      var homework = (_homework.containsKey(key)) ? _homework[key] : null;
       int dateInt = date.millisecondsSinceEpoch;
       if (dateInt >= _timetableStart.millisecondsSinceEpoch && dateInt <= _timetableEnd.millisecondsSinceEpoch) {
         if (dateInt >= _staticStart.millisecondsSinceEpoch && dateInt <= _staticEnd.millisecondsSinceEpoch) {
@@ -74,13 +92,18 @@ class CalendarData {
               .toList().asMap()
               .map((key, value) => MapEntry(value.lesson, value)));
           lessons.removeWhere((key, lesson) => lesson.erase);
-          return _ready[key] = Day(lessons, date, isOdd);
+          return _ready[key] = Day(lessons, date, isOdd, homework);
         } else
-          if (_dynamic.containsKey(key))
-            return _ready[key] = _dynamic[key];
+          if (_dynamic.containsKey(key)) {
+            Map<int, LessonData> lessons = _dynamic[key]
+                .lessons
+                .asMap()
+                .map((key, value) => MapEntry(value.lesson, value));
+            return _ready[key] = Day(lessons, date, isOdd, homework);
+          }
       }
+      return _ready[key] = Day(Map(), date, isOdd, homework);
     }
-    return _ready[key] = Day.empty();
   }
 
   static Future<int> getWeek(String date) async {
@@ -113,13 +136,20 @@ class Day {
   int weekday;
   bool isOdd;
 
-  Day (Map<int, LessonData> lessons, DateTime date, bool isOdd) {
+  Day (Map<int, LessonData> lessons, DateTime date, bool isOdd, dynamic homework) {
     this.lessons = List();
     lessons.values.forEach((lesson) => this.lessons.add(lesson));
     this.date = date;
     this.dateKey = _dateFormat.format(date);
     this.isOdd = isOdd;
     this.weekday = date.weekday;
+
+    if (homework is List)
+      for (int i = 0; i < homework.length; i++)
+        this.lessons[i].homework = Homework(homework[i]);
+    else if (homework is Map)
+        homework.forEach((key, value) => this.lessons[int.parse(key)].homework = Homework(value));
+
   }
   Day.static(dynamic lessons) {
     this.lessons = List();
@@ -143,6 +173,7 @@ class LessonData {
   String timeEnd;
   List<Teacher> teachers;
   List<Building> places;
+  Homework homework;
 
   bool erase = false;
 
@@ -159,8 +190,46 @@ class LessonData {
     this.places = List<Building>();
     (json['places'] as List<dynamic>).forEach((place) => this.places.add(Building(place)));
 
+    this.homework = Homework(null);
     this.erase = (json.containsKey('action') && json['action'] == "ERASE");
   }
+
+}
+
+class Homework {
+  List<File> _files = List();
+  bool exists;
+  String text;
+
+  List<File> get images => files.where((file) => file.image).toList();
+  List<File> get files => files.where((file) => !file.image).toList();
+  List<File> get all => _files;
+
+  Homework(Map<String, dynamic> json) {
+    exists =  json != null;
+    if (exists) {
+      if (json['files'] != null)
+         (json['files'] as List<dynamic>).forEach((file) => this._files.add(File(file)));
+      this.text = (json['text'] != null) ? json['text'] : "";
+    }
+  }
+
+}
+
+class File {
+  String name;
+  String origin;
+  bool image;
+
+  String get url => "https://polytable.ru/uploads/${(image) ? "images" : "files"}/" + name;
+  String get thumbnail => "https://polytable.ru/uploads/thumbnails/" + name;
+
+  File(Map<String, dynamic> json) {
+    this.name = json['name'];
+    this.origin = json['original'];
+    this.image = json['showable'] == "1";
+  }
+
 }
 
 class Building {

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'dart:math';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
@@ -20,6 +21,14 @@ class MyApp extends StatelessWidget {
         primaryColor: Colors.green,
       ),
       home: new MyHomePage(title: 'Polytable'),
+      localizationsDelegates: [
+        // ... app-specific localization delegate[s] here
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+      ],
+      supportedLocales: [
+        const Locale('ru', 'RU'),
+      ],
     );
   }
 }

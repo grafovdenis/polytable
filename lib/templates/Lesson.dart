@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:polytable/data/CalendarData.dart';
+import 'package:polytable/templates/ImageGallery.dart';
 
 class Lesson extends StatefulWidget {
-  const Lesson(
+  Lesson(
       {this.title,
       this.type,
       this.time_start,
@@ -10,7 +11,8 @@ class Lesson extends StatefulWidget {
       this.teachers,
       this.teacher,
       this.places,
-      this.place});
+      this.place,
+      this.homework});
 
   final String title;
   final String type;
@@ -20,12 +22,16 @@ class Lesson extends StatefulWidget {
   final String teacher;
   final List<dynamic> places;
   final String place;
+  final Homework homework;
+
 
   @override
   _LessonState createState() => new _LessonState();
 }
 
 class _LessonState extends State<Lesson> {
+  bool _homeworkExpanded = false;
+
   Container buildField(String field, Color textColor, double fontSize) {
     return Container(
         child: (field != null)
@@ -39,19 +45,75 @@ class _LessonState extends State<Lesson> {
   }
 
   Container buildFields(List<dynamic> fields, double fontSize) {
-    if (fields.isEmpty)
-      return Container(child: Text(""));
+    if (fields.isEmpty) return Container(child: Text(""));
     List<Widget> text = List();
     fields.forEach((field) {
       String name = (field is Teacher) ? field.name : (field as Building).name;
-      text.add(Text(
-          name,
+      text.add(Text(name,
           textAlign: TextAlign.center,
           overflow: TextOverflow.clip,
-          style: TextStyle(fontSize: fontSize)
-      ));
+          style: TextStyle(fontSize: fontSize)));
     });
     return Container(child: Column(children: text));
+  }
+
+  Widget _buildHomework() {
+    /*
+      List<Widget> images = widget.homework.files
+          .map((file) => Padding(padding: EdgeInsets.only(left: 2, right: 2), child:ClipRRect(
+          borderRadius: BorderRadius.circular(15.0),
+          child: Image.network(file.thumbnail)))
+      ).toList();
+  */  /*
+      List<Image> thumbnails = widget.homework.files
+          .map((file) => Image.network(file.thumbnail)).toList();
+      List<PhotoViewGalleryPageOptions> images = widget.homework.files
+          .map((file) => PhotoViewGalleryPageOptions(
+            imageProvider: Image.network(file.url).image,
+            heroTag: file.name,
+        )).toList();
+      */
+     /*
+      Widget container = Container(
+        child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              Padding(
+                padding: EdgeInsets.all(5),
+                child: Text(
+                  widget.homework.text,
+                  textAlign: TextAlign.left,
+                  style: TextStyle(fontSize: 15),
+                )
+              ),
+              Row(
+                children: images
+              )
+            ]),
+      );
+      */
+     /*
+     Container container = Container(
+         child: PhotoViewGallery(
+           pageOptions: images,
+           backgroundDecoration: BoxDecoration(color: Colors.black87),
+         )
+     );
+     */
+    return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          Padding(
+              padding: EdgeInsets.all(5),
+              child: Text(
+                widget.homework.text,
+                textAlign: TextAlign.left,
+                style: TextStyle(fontSize: 15),
+              )
+          ),
+          ThumbnailGallery(images: widget.homework.all)
+        ]);
+
   }
 
   @override
@@ -91,7 +153,38 @@ class _LessonState extends State<Lesson> {
                     buildField(widget.time_start + " - " + widget.time_end,
                         Colors.black, 16.0),
                     buildFields(widget.teachers, 16.0),
-                    buildFields(widget.places, 16.0)
+                    buildFields(widget.places, 16.0),
+                    (widget.homework.exists) ?
+                     Column(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: <Widget>[
+                            Row(
+                              mainAxisSize: MainAxisSize.max,
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              //crossAxisAlignment: CrossAxisAlignment.stretch,
+                              children: <Widget>[
+                                Padding(
+                                    padding: EdgeInsets.only(left: 8.0),
+                                    child: Text(
+                                      (_homeworkExpanded) ? "Скрыть ДЗ" : "Показать ДЗ" ,
+                                      textAlign: TextAlign.left,
+                                      style: TextStyle(fontSize: 15),
+                                    )),
+                                IconButton(
+                                    icon: Icon((_homeworkExpanded)
+                                        ? Icons.keyboard_arrow_up
+                                        : Icons.keyboard_arrow_down),
+                                    iconSize: 20,
+                                    onPressed: () {
+                                      setState(() {
+                                        _homeworkExpanded = !_homeworkExpanded;
+                                      });
+                                    }),
+                              ],
+                            ),
+                            (_homeworkExpanded) ? _buildHomework() : Container(),
+                          ]
+                     ) : Container()
                   ],
                 ),
               ),
