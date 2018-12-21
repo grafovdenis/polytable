@@ -27,8 +27,9 @@ class Calendar extends StatefulWidget {
         this.showChevronsToChangeRange: true,
         this.showCalendarPickerIcon: true,
         this.initialCalendarDateOverride,
-        this.weekStartsOnMonday: false});
-
+        this.weekStartsOnMonday: false,
+        });
+  
   @override
   _CalendarState createState() => new _CalendarState();
 }
@@ -98,7 +99,22 @@ class _CalendarState extends State<Calendar> {
       leftInnerIcon = new Container();
     }
 
-    displayMonth = Utils.formatMonth(_selectedDate);
+    var displayMonth = Utils.formatMonth(_selectedDate).split(" ");
+
+    var locale = {
+      "January" : "Январь",
+      "February" : "Февраль",
+      "March": "Март",
+      "April": "Апрель",
+      "May": "Май",
+      "June": "Июнь",
+      "July": "Июль",
+      "August": "Август",
+      "September": "Сентябрь",
+      "October": "Октябрь",
+      "November": "Ноябрь",
+      "December": "Декабрь"
+    };
 
     return new Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -106,7 +122,7 @@ class _CalendarState extends State<Calendar> {
         leftOuterIcon ?? new Container(),
         leftInnerIcon ?? new Container(),
         new Text(
-          displayMonth,
+          locale[displayMonth[0]] + " " + displayMonth[1],
           style: new TextStyle(
             fontSize: 20.0,
           ),
@@ -132,6 +148,12 @@ class _CalendarState extends State<Calendar> {
         ),
       ),
     );
+  }
+
+  void setDate(DateTime date) {
+    setState(() {
+      _selectedDate = date;
+    });
   }
 
   List<Widget> calendarBuilder() {

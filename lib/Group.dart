@@ -77,9 +77,9 @@ class _GroupState extends State<Group> {
         }
         print("After jump > ${pageController.offset}");
       },
+
     );
-    
-    
+
     return Scaffold(
       appBar: Header(
         title: Center(
@@ -98,6 +98,7 @@ class _GroupState extends State<Group> {
             days.forEach((day) {
               this.days.add(day);
               buildDays.add(_buildDay(day));
+              pageController.jumpToPage(2);
             });
           });
         },
