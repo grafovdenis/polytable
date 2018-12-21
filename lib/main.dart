@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'dart:math';
-import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
@@ -79,12 +78,12 @@ class _MyHomePageState extends State<MyHomePage> {
     results.clear();
     final String url = "https://polytable.ru/search.php?query=";
     String query = url + group.trim();
-    await http.get(query)
-        .then((response) =>
-            json.decode(utf8.decode(response.bodyBytes))
-              .forEach((element) => results.add(new SearchResult(
-                name: element['name'],
-                faculty_abbr: element['faculty_abbr']))))
+    await http
+        .get(query)
+        .then((response) => json
+            .decode(utf8.decode(response.bodyBytes))
+            .forEach((element) => results.add(new SearchResult(
+                name: element['name'], faculty_abbr: element['faculty_abbr']))))
         .catchError((e) => print(e));
 
     /*
@@ -176,9 +175,12 @@ class _MyHomePageState extends State<MyHomePage> {
                     ),
                   ),
                 ),
-                (results.isNotEmpty)
-                    ? Column(children: results)
-                    : Container(width: 0.0, height: 0.0),
+                Padding(
+                    padding: const EdgeInsets.only(
+                        left: 16, top: 16, right: 16, bottom: 16),
+                    child: (results.isNotEmpty)
+                        ? Column(children: results)
+                        : Container(width: 0.0, height: 0.0))
               ],
             ),
           ),

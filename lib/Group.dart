@@ -122,7 +122,7 @@ class _GroupState extends State<Group> {
           Padding(
             padding: const EdgeInsets.only(top: 8.0),
             child: Text(
-              "${(!day.isOdd) ? "Чётная неделя:" : "Нечётная неделя:"}\n${weekday[day.weekday]}(${day.dateKey})",
+              "${(!day.isOdd) ? "Чётная неделя:" : "Нечётная неделя:"}\n${weekday[day.weekday]} (${day.dateKey})",
               textAlign: TextAlign.center,
               overflow: TextOverflow.clip,
               style: TextStyle(
