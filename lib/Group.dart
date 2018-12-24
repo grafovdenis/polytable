@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:polytable/templates/Header.dart';
 import 'package:polytable/templates/Lesson.dart';
 import 'package:polytable/data/CalendarData.dart';
@@ -48,7 +49,8 @@ class _GroupState extends State<Group> {
         buildDays.add(_buildDay(day));
       });
 
-    PageController pageController = PageController(initialPage: page, keepPage: true);
+    PageController pageController =
+        PageController(initialPage: page, keepPage: true);
     Calendar calendar = Calendar(
       onDateSelected: (DateTime date) async {
         List<Day> days = await widget.calendar.getAcross(date);
@@ -72,7 +74,8 @@ class _GroupState extends State<Group> {
       onPageChanged: (index) async {
         print("Before jump > ${pageController.offset}");
         if (index == 0) {
-          Day day = await widget.calendar.get(widget.calendar.getDateKey(days[0].date.subtract(Duration(days: 1))));
+          Day day = await widget.calendar.get(widget.calendar
+              .getDateKey(days[0].date.subtract(Duration(days: 1))));
           setState(() {
             page = 1;
             days.insert(0, day);
@@ -81,7 +84,8 @@ class _GroupState extends State<Group> {
             calendar.setDate(days[1].date);
           });
         } else if (index == buildDays.length - 1) {
-          Day day = await widget.calendar.get(widget.calendar.getDateKey(days[days.length - 1].date.add(Duration(days: 1))));
+          Day day = await widget.calendar.get(widget.calendar
+              .getDateKey(days[days.length - 1].date.add(Duration(days: 1))));
           setState(() {
             page = index;
             days.add(day);
@@ -93,22 +97,23 @@ class _GroupState extends State<Group> {
           calendar.setDate(days[index].date);
         }
         print("After jump > ${pageController.offset}");
-
       },
-
     );
 
     return Scaffold(
-      appBar: Header(
-        title: Center(
-            child: Text(
-          widget.name,
-          style: TextStyle(fontWeight: FontWeight.bold),
-        )),
-      ),
-      body: pageView,
-      bottomNavigationBar: calendar
-    );
+        appBar: Header(
+          title: Center(
+              child: Text(
+            widget.name,
+            style: TextStyle(fontWeight: FontWeight.bold),
+          )),
+        ),
+        body: pageView,
+        bottomNavigationBar: OrientationBuilder(
+            builder: (context, orientation) =>
+                orientation == Orientation.portrait
+                    ? calendar
+                    : Container(height: 0, width: 0)));
   }
 
   _buildDay(Day day) {
@@ -149,20 +154,26 @@ class _GroupState extends State<Group> {
                   ),
                 )
               : Flexible(
-                  child: ListView.builder(
-                      itemCount: day.lessons.length,
-                      itemBuilder: (context, lesson) {
-                          return Lesson(
-                            title: day[lesson].subject,
-                            type: day[lesson].type,
-                            time_start: day[lesson].timeStart,
-                            time_end: day[lesson].timeEnd,
-                            teachers: day[lesson].teachers,
-                            places: day[lesson].places,
-                            homework: day[lesson].homework,
-                          );
-                      }),
-                ),
+                  child: OrientationBuilder(
+                      builder: (context, orientation) =>
+                          StaggeredGridView.countBuilder(
+                            crossAxisCount:
+                                orientation == Orientation.portrait ? 1 : 3,
+                            itemCount: day.lessons.length,
+                            itemBuilder: (context, lesson) {
+                              return Lesson(
+                                title: day[lesson].subject,
+                                type: day[lesson].type,
+                                time_start: day[lesson].timeStart,
+                                time_end: day[lesson].timeEnd,
+                                teachers: day[lesson].teachers,
+                                places: day[lesson].places,
+                                homework: day[lesson].homework,
+                              );
+                            },
+                            staggeredTileBuilder: (int index) =>
+                                new StaggeredTile.fit(1),
+                          )))
         ],
       ),
     );

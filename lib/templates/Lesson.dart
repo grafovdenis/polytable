@@ -24,7 +24,6 @@ class Lesson extends StatefulWidget {
   final String place;
   final Homework homework;
 
-
   @override
   _LessonState createState() => new _LessonState();
 }
@@ -32,19 +31,18 @@ class Lesson extends StatefulWidget {
 class _LessonState extends State<Lesson> {
   bool _homeworkExpanded = false;
 
-  Container buildField(String field, Color textColor, double fontSize) {
-    return Container(
-        child: (field != null)
-            ? Text(
-                field,
-                textAlign: TextAlign.center,
-                overflow: TextOverflow.clip,
-                style: TextStyle(fontSize: fontSize, color: textColor),
-              )
-            : Text(""));
+  Widget buildField(String field, Color textColor, double fontSize) {
+    return (field != null)
+        ? Text(
+            field,
+            textAlign: TextAlign.center,
+            overflow: TextOverflow.clip,
+            style: TextStyle(fontSize: fontSize, color: textColor),
+          )
+        : Text("");
   }
 
-  Container buildFields(List<dynamic> fields, double fontSize) {
+  Widget buildFields(List<dynamic> fields, double fontSize) {
     if (fields.isEmpty) return Container(child: Text(""));
     List<Widget> text = List();
     fields.forEach((field) {
@@ -54,52 +52,10 @@ class _LessonState extends State<Lesson> {
           overflow: TextOverflow.clip,
           style: TextStyle(fontSize: fontSize)));
     });
-    return Container(child: Column(children: text));
+    return Column(children: text);
   }
 
   Widget _buildHomework() {
-    /*
-      List<Widget> images = widget.homework.files
-          .map((file) => Padding(padding: EdgeInsets.only(left: 2, right: 2), child:ClipRRect(
-          borderRadius: BorderRadius.circular(15.0),
-          child: Image.network(file.thumbnail)))
-      ).toList();
-  */  /*
-      List<Image> thumbnails = widget.homework.files
-          .map((file) => Image.network(file.thumbnail)).toList();
-      List<PhotoViewGalleryPageOptions> images = widget.homework.files
-          .map((file) => PhotoViewGalleryPageOptions(
-            imageProvider: Image.network(file.url).image,
-            heroTag: file.name,
-        )).toList();
-      */
-     /*
-      Widget container = Container(
-        child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[
-              Padding(
-                padding: EdgeInsets.all(5),
-                child: Text(
-                  widget.homework.text,
-                  textAlign: TextAlign.left,
-                  style: TextStyle(fontSize: 15),
-                )
-              ),
-              Row(
-                children: images
-              )
-            ]),
-      );
-      */
-     /*
-     Container container = Container(
-         child: PhotoViewGallery(
-           pageOptions: images,
-           backgroundDecoration: BoxDecoration(color: Colors.black87),
-         )
-     );
-     */
     return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
@@ -109,11 +65,9 @@ class _LessonState extends State<Lesson> {
                 widget.homework.text,
                 textAlign: TextAlign.left,
                 style: TextStyle(fontSize: 15),
-              )
-          ),
+              )),
           ThumbnailGallery(images: widget.homework.all)
         ]);
-
   }
 
   @override
@@ -154,42 +108,44 @@ class _LessonState extends State<Lesson> {
                         Colors.black, 16.0),
                     buildFields(widget.teachers, 16.0),
                     buildFields(widget.places, 16.0),
-                    (widget.homework.exists) ?
-                     Column(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          children: <Widget>[
-                            Row(
-                              mainAxisSize: MainAxisSize.max,
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              //crossAxisAlignment: CrossAxisAlignment.stretch,
-                              children: <Widget>[
-                                Padding(
-                                    padding: EdgeInsets.only(left: 8.0),
-                                    child: Text(
-                                      (_homeworkExpanded) ? "Скрыть ДЗ" : "Показать ДЗ" ,
-                                      textAlign: TextAlign.left,
-                                      style: TextStyle(fontSize: 15),
-                                    )),
-                                IconButton(
-                                    icon: Icon((_homeworkExpanded)
-                                        ? Icons.keyboard_arrow_up
-                                        : Icons.keyboard_arrow_down),
-                                    iconSize: 20,
-                                    onPressed: () {
-                                      setState(() {
-                                        _homeworkExpanded = !_homeworkExpanded;
-                                      });
-                                    }),
-                              ],
-                            ),
-                            (_homeworkExpanded) ? _buildHomework() : Container(),
-                          ]
-                     ) : Container()
+                    homework()
                   ],
                 ),
               ),
             ),
           )
         : new Container(width: 0.0, height: 0.0);
+  }
+
+  Widget homework() {
+    return (widget.homework.exists)
+        ? Column(mainAxisAlignment: MainAxisAlignment.start, children: <Widget>[
+            Row(
+              mainAxisSize: MainAxisSize.max,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              //crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: <Widget>[
+                Padding(
+                    padding: EdgeInsets.only(left: 8.0),
+                    child: Text(
+                      (_homeworkExpanded) ? "Скрыть ДЗ" : "Показать ДЗ",
+                      textAlign: TextAlign.left,
+                      style: TextStyle(fontSize: 15),
+                    )),
+                IconButton(
+                    icon: Icon((_homeworkExpanded)
+                        ? Icons.keyboard_arrow_up
+                        : Icons.keyboard_arrow_down),
+                    iconSize: 20,
+                    onPressed: () {
+                      setState(() {
+                        _homeworkExpanded = !_homeworkExpanded;
+                      });
+                    }),
+              ],
+            ),
+            (_homeworkExpanded) ? _buildHomework() : Container(),
+          ])
+        : Container();
   }
 }
