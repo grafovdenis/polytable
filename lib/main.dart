@@ -179,9 +179,12 @@ class _MyHomePageState extends State<MyHomePage> {
                     ),
                   ),
                 ),
-                (results.isNotEmpty)
-                    ? Column(children: results)
-                    : Container(width: 0.0, height: 0.0),
+                Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: (results.isNotEmpty)
+                      ? Column(children: results)
+                      : Container(width: 0.0, height: 0.0),
+                ),
               ],
             ),
           ),
