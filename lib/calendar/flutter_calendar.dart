@@ -56,7 +56,7 @@ class _CalendarState extends State<Calendar> {
   void initState() {
     super.initState();
     if (widget.initialCalendarDateOverride != null)
-      _selectedDate = widget.initialCalendarDateOverride;
+      _selectedDate = _actualSelectedDate = widget.initialCalendarDateOverride;
     selectedMonthsDays = Utils.daysInMonth(_selectedDate);
     var firstDayOfCurrentWeek = Utils.firstDayOfWeek(_selectedDate);
     var lastDayOfCurrentWeek = Utils.lastDayOfWeek(_selectedDate);
@@ -65,6 +65,7 @@ class _CalendarState extends State<Calendar> {
             .toList()
             .sublist(0, 7);
     displayMonth = Utils.formatMonth(_selectedDate);
+    print("Calendar init state called");
   }
 
   Widget get nameAndIconRow {

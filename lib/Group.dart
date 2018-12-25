@@ -3,6 +3,7 @@ import 'package:polytable/templates/Header.dart';
 import 'package:polytable/templates/Lesson.dart';
 import 'package:polytable/data/CalendarData.dart';
 import 'package:polytable/calendar/flutter_calendar.dart';
+import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 
 class Group extends StatefulWidget {
   final String name;
@@ -20,9 +21,12 @@ class _GroupState extends State<Group> {
   List<Day> days = List();
   bool loaded = false;
   int page = 2;
+  Sync _sync = Sync(date: DateTime.now());
 
-  initState() {
+  void initState() {
+    super.initState();
     calendar = CalendarData(widget.name);
+
   }
 
   Widget build(BuildContext context) {
@@ -63,9 +67,11 @@ class _GroupState extends State<Group> {
             this.days.add(day);
             buildDays.add(_buildDay(day));
             pageController.jumpToPage(2);
+            _sync.date = date;
           });
         });
       },
+      initialCalendarDateOverride: _sync.date,
     );
     PageView pageView = PageView.builder(
       itemCount: buildDays.length,
@@ -82,6 +88,7 @@ class _GroupState extends State<Group> {
             days.insert(0, day);
             buildDays.insert(0, _buildDay(day));
             pageController.jumpToPage(1);
+            _sync.date = days[1].date;
             calendar.setDate(days[1].date);
           });
         } else if (index == buildDays.length - 1) {
@@ -91,9 +98,12 @@ class _GroupState extends State<Group> {
             days.add(day);
             buildDays.add(_buildDay(day));
           });
+          _sync.date = days[index].date;
           calendar.setDate(days[index].date);
         } else {
           print("No update needded, index $index of ${buildDays.length}");
+          page = index;
+          _sync.date = days[index].date;
           calendar.setDate(days[index].date);
         }
         print("After jump > ${pageController.offset}");
@@ -101,8 +111,7 @@ class _GroupState extends State<Group> {
       },
 
     );
-
-    return Scaffold(
+    Widget scaffold = Scaffold(
       appBar: Header(
         title: Center(
             child: Text(
@@ -111,8 +120,17 @@ class _GroupState extends State<Group> {
         )),
       ),
       body: pageView,
-      bottomNavigationBar: calendar
+      bottomNavigationBar: OrientationBuilder(
+          builder: (context, orientation) {
+            if (orientation == Orientation.portrait) {
+              calendar.setDate(days[page].date);
+              return calendar;
+            }
+            else return Container(height: 0, width: 0);
+          })
     );
+    print("Days builder also called");
+    return scaffold;
   }
 
   _buildDay(Day day) {
@@ -153,9 +171,13 @@ class _GroupState extends State<Group> {
                   ),
                 )
               : Flexible(
-                  child: ListView.builder(
-                      itemCount: day.lessons.length,
-                      itemBuilder: (context, lesson) {
+              child: OrientationBuilder(
+                  builder: (context, orientation) =>
+                      StaggeredGridView.countBuilder(
+                        crossAxisCount:
+                        orientation == Orientation.portrait ? 1 : 2,
+                        itemCount: day.lessons.length,
+                        itemBuilder: (context, lesson) {
                           return Lesson(
                             title: day[lesson].subject,
                             type: day[lesson].type,
@@ -165,10 +187,18 @@ class _GroupState extends State<Group> {
                             places: day[lesson].places,
                             homework: day[lesson].homework,
                           );
-                      }),
+                        },
+                        staggeredTileBuilder: (int index) =>
+                        new StaggeredTile.fit(1),
+                      ))
                 ),
         ],
       ),
     );
   }
+}
+class Sync {
+  DateTime date;
+
+  Sync({this.date});
 }
