@@ -10,6 +10,7 @@ class SearchResult extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
+      key: Key("search-result-$name"),
       child: ListTile(
         onTap: () {
           Navigator.push(context,

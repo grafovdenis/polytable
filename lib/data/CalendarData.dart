@@ -90,7 +90,7 @@ class CalendarData {
               .lessons
               .where((lesson) => !lessons.containsKey(lesson.lesson))
               .toList().asMap()
-              .map((key, value) => MapEntry(value.lesson, value)));
+              .map((key, value) => MapEntry(value.lesson, LessonData.copy(value))));
           lessons.removeWhere((key, lesson) => lesson.erase);
           return _ready[key] = Day(lessons, date, isOdd, homework);
         } else
@@ -148,7 +148,12 @@ class Day {
       for (int i = 0; i < homework.length; i++)
         this.lessons[i].homework = Homework(homework[i]);
     else if (homework is Map)
-        homework.forEach((key, value) => this.lessons[int.parse(key)].homework = Homework(value));
+      homework.forEach((key, value) => () {
+        LessonData les = this.lessons.where((LessonData l) => l.lesson == int.parse(key)).first;
+        if (les != null)
+          les.homework = Homework(value);
+      });
+        //homework.forEach((key, value) => this.lessons[int.parse(key)].homework = Homework(value));
 
   }
   Day.static(dynamic lessons) {
@@ -194,6 +199,18 @@ class LessonData {
     this.erase = (json.containsKey('action') && json['action'] == "ERASE");
   }
 
+  LessonData.copy(LessonData other) {
+    this.isOdd = other.isOdd;
+    this.lesson = other.lesson;
+    this.weekday = other.weekday;
+    this.subject = other.subject;
+    this.type = other.type;
+    this.timeStart = other.timeStart;
+    this.timeEnd = other.timeEnd;
+    this.teachers = other.teachers;
+    this.places = other.places;
+    this.homework = Homework(null);
+  }
 }
 
 class Homework {

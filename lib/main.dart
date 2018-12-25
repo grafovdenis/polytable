@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'dart:math';
-import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
@@ -9,7 +8,10 @@ import 'package:polytable/Constants.dart';
 import 'package:polytable/Group.dart';
 import 'package:polytable/templates/SearchResult.dart';
 
-void main() async => runApp(new MyApp());
+
+void main() async {
+  runApp(new MyApp());
+}
 
 class MyApp extends StatelessWidget {
   //TODO fix navigation, divide into classes
@@ -163,6 +165,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   padding:
                       const EdgeInsets.only(top: 60.0, right: 30.0, left: 30.0),
                   child: new TextField(
+                    key: Key("search-group"),
                     onSubmitted: _findGroups,
                     style: TextStyle(
                         color: Colors.black, fontWeight: FontWeight.bold),

@@ -5,10 +5,9 @@ import 'package:polytable/data/CalendarData.dart';
 import 'package:polytable/calendar/flutter_calendar.dart';
 
 class Group extends StatefulWidget {
-  final CalendarData calendar;
   final String name;
 
-  Group({this.name}) : calendar = CalendarData(name);
+  Group({this.name});
 
   @override
   _GroupState createState() => new _GroupState();
@@ -16,14 +15,19 @@ class Group extends StatefulWidget {
 
 class _GroupState extends State<Group> {
   var currentWeekday = new DateTime.now().weekday - 1;
+  CalendarData calendar;
   List<Widget> buildDays = List();
   List<Day> days = List();
   bool loaded = false;
   int page = 2;
 
+  initState() {
+    calendar = CalendarData(widget.name);
+  }
+
   Widget build(BuildContext context) {
     if (!loaded) {
-      widget.calendar.load().then((data) {
+      calendar.load().then((data) {
         setState(() {
           data.forEach((day) {
             days.add(day);
@@ -51,7 +55,7 @@ class _GroupState extends State<Group> {
     PageController pageController = PageController(initialPage: page, keepPage: true);
     Calendar calendar = Calendar(
       onDateSelected: (DateTime date) async {
-        List<Day> days = await widget.calendar.getAcross(date);
+        List<Day> days = await this.calendar.getAcross(date);
         setState(() {
           this.days = List();
           this.buildDays = List();
@@ -72,7 +76,7 @@ class _GroupState extends State<Group> {
       onPageChanged: (index) async {
         print("Before jump > ${pageController.offset}");
         if (index == 0) {
-          Day day = await widget.calendar.get(widget.calendar.getDateKey(days[0].date.subtract(Duration(days: 1))));
+          Day day = await this.calendar.get(this.calendar.getDateKey(days[0].date.subtract(Duration(days: 1))));
           setState(() {
             page = 1;
             days.insert(0, day);
@@ -81,7 +85,7 @@ class _GroupState extends State<Group> {
             calendar.setDate(days[1].date);
           });
         } else if (index == buildDays.length - 1) {
-          Day day = await widget.calendar.get(widget.calendar.getDateKey(days[days.length - 1].date.add(Duration(days: 1))));
+          Day day = await this.calendar.get(this.calendar.getDateKey(days[days.length - 1].date.add(Duration(days: 1))));
           setState(() {
             page = index;
             days.add(day);

@@ -58,48 +58,6 @@ class _LessonState extends State<Lesson> {
   }
 
   Widget _buildHomework() {
-    /*
-      List<Widget> images = widget.homework.files
-          .map((file) => Padding(padding: EdgeInsets.only(left: 2, right: 2), child:ClipRRect(
-          borderRadius: BorderRadius.circular(15.0),
-          child: Image.network(file.thumbnail)))
-      ).toList();
-  */  /*
-      List<Image> thumbnails = widget.homework.files
-          .map((file) => Image.network(file.thumbnail)).toList();
-      List<PhotoViewGalleryPageOptions> images = widget.homework.files
-          .map((file) => PhotoViewGalleryPageOptions(
-            imageProvider: Image.network(file.url).image,
-            heroTag: file.name,
-        )).toList();
-      */
-     /*
-      Widget container = Container(
-        child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[
-              Padding(
-                padding: EdgeInsets.all(5),
-                child: Text(
-                  widget.homework.text,
-                  textAlign: TextAlign.left,
-                  style: TextStyle(fontSize: 15),
-                )
-              ),
-              Row(
-                children: images
-              )
-            ]),
-      );
-      */
-     /*
-     Container container = Container(
-         child: PhotoViewGallery(
-           pageOptions: images,
-           backgroundDecoration: BoxDecoration(color: Colors.black87),
-         )
-     );
-     */
     return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
