@@ -76,7 +76,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   void _findGroups(String group) async {
     results.clear();
-    final String url = "https://polytable.ru/search.php?query=";
+    final String url = "http://a0279549.xsph.ru/search.php?query=";
     String query = url + group.trim();
     await http.get(query)
         .then((response) =>

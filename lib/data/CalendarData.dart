@@ -5,8 +5,7 @@ import 'package:intl/intl.dart';
 import 'package:http/http.dart' as http;
 
 class CalendarData {
-  static final String POLYTABLE_API_URL = "https://polytable.ru/action.php?action=calendar&group=";
-
+  static final String POLYTABLE_API_URL = "http://a0279549.xsph.ru/action.php?action=calendar&group=";
   static final DateFormat _dateFormat = DateFormat("yyyy-MM-dd");
   static final MethodChannel _channel = MethodChannel("polytable.flutter.io/week");
 
@@ -30,7 +29,9 @@ class CalendarData {
   int getSemesterLength() => _timetableEnd.difference(_timetableStart).inDays + 1;
 
   Future<List<Day>> load () async {
-    await http.get("$POLYTABLE_API_URL$groupName").then((response) async {
+    await http.get("$POLYTABLE_API_URL$groupName", headers: {
+      'X-Requested-With' : 'XMLHttpRequest'
+    }).then((response) async {
       Map<String, dynamic> res = json.decode(utf8.decode(response.bodyBytes))['data'];
       _timetableStart = DateTime.parse(res['timetable_start']);
       _timetableEnd = DateTime.parse(res['timetable_end']);
