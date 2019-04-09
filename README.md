@@ -6,7 +6,7 @@ Simple mobile app created with Dart 2.1 and Flutter.
   * [Main page](#main-page)
   * [Group page](#group-page)
   * [Access to Java method](#access-to-java-method)
-* [Screensohts](#screenshots)
+* [Screenshots](#screenshots)
 * [Getting Started](#getting-started)
 
 ## General info
@@ -122,5 +122,5 @@ bool isOdd =  (await getWeek(key) - staticStartWeek) % 2 == 0;
 ![image](https://user-images.githubusercontent.com/20505376/52518853-96353f80-2c62-11e9-9f23-588bcc1bc348.png) ![image](https://user-images.githubusercontent.com/20505376/52518855-97ff0300-2c62-11e9-8087-9d10cb102d9c.png)
 
 ## Getting Started
-For help getting started with Flutter, view our online
+For help getting started with Flutter, view online
 [documentation](https://flutter.io/).
